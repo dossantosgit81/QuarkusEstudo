@@ -20,6 +20,7 @@ import javax.ws.rs.core.Response;
 import io.github.mendes.socialstudy.domain.model.User;
 import io.github.mendes.socialstudy.domain.repository.UserRepository;
 import io.github.mendes.socialstudy.rest.dto.CreateUserRequest;
+import io.github.mendes.socialstudy.rest.dto.ResponseError;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 
 @Path("/users")
@@ -43,9 +44,8 @@ public class UserResource {
 		Set<ConstraintViolation<CreateUserRequest>> violations = validator.validate(userRequest);
 		
 		if(!violations.isEmpty()) {
-			ConstraintViolation<CreateUserRequest> erro = violations.stream().findAny().get();
-			String erroMessage = erro.getMessage();
-			return Response.status(400).entity(erroMessage).build();
+			ResponseError responseError = ResponseError.createFromValidation(violations);
+			return Response.status(400).entity(responseError).build();
 		}
 		
 		User user = new User();
