@@ -1,8 +1,11 @@
 package io.github.mendes.socialstudy.rest;
 
+import java.util.stream.Collectors;
+
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -14,6 +17,8 @@ import io.github.mendes.socialstudy.domain.model.Follower;
 import io.github.mendes.socialstudy.domain.repository.FollowerRepository;
 import io.github.mendes.socialstudy.domain.repository.UserRepository;
 import io.github.mendes.socialstudy.rest.dto.FollowerRequest;
+import io.github.mendes.socialstudy.rest.dto.FollowerResponse;
+import io.github.mendes.socialstudy.rest.dto.FollowersPerUserResponse;
 
 @Path("/users/{userId}/followers")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -36,7 +41,6 @@ public class FollowerResource {
 	public Response follomUser(
 			@PathParam("userId") Long userId, FollowerRequest followerRequest) {
 		
-		var user = userRepository.findById(userId);
 		
 		if(userId.equals(followerRequest.getFollowerId())) {
 			return Response
@@ -45,6 +49,7 @@ public class FollowerResource {
 					.build();
 		}
 		
+		var user = userRepository.findById(userId);
 		if(user == null) {
 			return Response
 					.status(Response.Status.NOT_FOUND).build();
@@ -65,4 +70,28 @@ public class FollowerResource {
 		return Response.status(Response.Status.NO_CONTENT).build();
 	}
 
+	@GET
+	public Response listFollowers(@PathParam("userId") Long userId) {
+		
+		var user = userRepository.findById(userId);
+		if(user == null) {
+			return Response
+					.status(Response.Status.NOT_FOUND).build();
+		}
+		
+		var list = followerRepository.findByUser(userId);
+		
+		FollowersPerUserResponse responseObject = new FollowersPerUserResponse();
+		responseObject.setFollowerCount(list.size());
+		
+		var followersList = list.stream()
+				.map(FollowerResponse::new)
+				.collect(Collectors.toList());
+		
+		responseObject.setContent(followersList);
+		
+		return Response.ok(responseObject).build();
+		
+	}
+	
 }

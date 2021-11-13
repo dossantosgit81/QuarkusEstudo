@@ -1,5 +1,6 @@
 package io.github.mendes.socialstudy.domain.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -19,6 +20,12 @@ public class FollowerRepository implements PanacheRepository<Follower>{
 		Optional<Follower> result = query.firstResultOptional();
 		
 		return result.isPresent();
+	}
+	
+	public List<Follower> findByUser(Long userId){
+		PanacheQuery<Follower> query = find("user.id", userId);
+		
+		return query.list();
 	}
 	
 }
