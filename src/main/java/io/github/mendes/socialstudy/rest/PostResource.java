@@ -85,7 +85,7 @@ public class PostResource {
 		if (follower == null) {
 			return Response
 					.status(Response.Status.BAD_REQUEST)
-					.entity("Você esqueceu do Header")
+					.entity("Inexistent followerId")
 					.build();
 				
 		}
